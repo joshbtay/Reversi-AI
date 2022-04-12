@@ -24,7 +24,7 @@ public class RandomGuy {
                 {-8, -24, -4, -3, -3, -4, -24, -8 },
                 {99, -8, 8, 6, 6, 8, -8, 99}
             };
-    float t1, t2;
+    double t1, t2;
     int me;
     int them;
     int state[][] = new int[8][8];
@@ -32,11 +32,11 @@ public class RandomGuy {
     int round;
     int MAX = Integer.MAX_VALUE;
     int MIN = Integer.MIN_VALUE;
-    float CORNER = 100;
-    float MOBILITY =(float) .4;
-    float STABILITY = 8;
-    float EXP =(float) 1.4;
-    float COUNT = 2;
+    double CORNER = 100;
+    double MOBILITY =.4;
+    double STABILITY = 8;
+    double EXP = 1.4;
+    double COUNT = 2;
     int DEPTH = 9;
     class Move implements Comparable<Move>{
         int r;
@@ -72,11 +72,11 @@ public class RandomGuy {
         }
     }
 
-    private float evaluate(int[][] s, int gameDepth){
-        float count = 0;
-        float corn = 0;
-        float perm = 0;
-        float other = 0;
+    private double evaluate(int[][] s, int gameDepth){
+        double count = 0;
+        double corn = 0;
+        double perm = 0;
+        double other = 0;
         for (int i = 0; i < 8; i++){
             for(int j = 0; j < 8; j++){
                 if (s[i][j] == me){
@@ -111,13 +111,17 @@ public class RandomGuy {
                     if (s[r][c] == me){
                         corn += CORNER;
                         stable[r][c] = true;
-                        q.add(new tup(r+dx,c));
-                        q.add(new tup(r,c+dy));
+                        if(s[r+dx][c] == me)
+                            q.add(new tup(r+dx,c));
+                        if (s[r][c+dy] == me)
+                            q.add(new tup(r,c+dy));
                     }else if(s[r][c] == them){
                         corn -= CORNER;
                         stable[r][c] = true;
-                        q.add(new tup(r+dx,c));
-                        q.add(new tup(r,c+dy));
+                        if(s[r+dx][c] == them)
+                            q.add(new tup(r+dx,c));
+                        if (s[r][c+dy] == them)
+                            q.add(new tup(r,c+dy));
                     }
                     while(!q.isEmpty()){
                         tup t = q.pollFirst();
@@ -176,12 +180,12 @@ public class RandomGuy {
             System.arraycopy(bs[j], 0, s[j], 0, 8);
         }
     }
-    private float minimax(int[][] st, int depth, float a, float b, int turn, int gameDepth){
+    private double minimax(int[][] st, int depth, double a, double b, int turn, int gameDepth){
         if (depth == 0) return evaluate(st, gameDepth);
         ArrayList<Move> validMoves = getValidMoves(turn, st);
         if (validMoves.isEmpty()) return evaluate(st, gameDepth);
         int[][] s = new int[8][8];
-        float val;
+        double val;
         if (turn == me){
             val=MIN;
             for (Move i : validMoves){
@@ -193,7 +197,7 @@ public class RandomGuy {
             }
         }else{
             val=MAX;
-            float subtract = (float)(Math.pow(validMoves.size(), EXP) * MOBILITY) * (1 - (float)gameDepth / 64);
+            double subtract = (Math.pow(validMoves.size(), EXP) * MOBILITY) * (1 - (double) gameDepth / 64);
             for (Move i : validMoves){
                 copy(st, s);
                 make_move(s, i.r, i.c,turn);
@@ -212,17 +216,17 @@ public class RandomGuy {
         if (validMoves.size() <= 1){
             return 0;
         }
-        float best = MIN;
+        double best = MIN;
         int best_index = -1;
         int[][] s = new int[8][8];
-        float a = MIN;
-        float b = MAX;
+        double a = MIN;
+        double b = MAX;
         for (int i = 0; i < validMoves.size(); i++) {
             int row = validMoves.get(i).r;
             int col = validMoves.get(i).c;
             copy(state, s);
             make_move(s, row, col, me);
-            float val = minimax(s, DEPTH, a, b, them, round + 1);
+            double val = minimax(s, DEPTH, a, b, them, round + 1);
             a = Math.max(val, a);
             System.out.println("Move [" +row + ", " + col + "] has score "+ val);
             if(best < val){
@@ -375,8 +379,8 @@ public class RandomGuy {
             }
 
             round = Integer.parseInt(sin.readLine());
-            t1 =(float) Double.parseDouble(sin.readLine());
-            t2 =(float) Double.parseDouble(sin.readLine());
+            t1 = Double.parseDouble(sin.readLine());
+            t2 = Double.parseDouble(sin.readLine());
             for (i = 0; i < 8; i++) {
                 for (j = 0; j < 8; j++) {
                     state[i][j] = Integer.parseInt(sin.readLine());
