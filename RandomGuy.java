@@ -77,6 +77,28 @@ public class RandomGuy {
         float corn = 0;
         float perm = 0;
         float other = 0;
+        for (int i = 0; i < 8; i++){
+            for(int j = 0; j < 8; j++){
+                if (s[i][j] == me){
+                    count += 1;
+                }
+                else if(s[i][j] == them) {
+                    other += 1;
+                }
+
+            }
+        }
+        if (count == 0){
+            return MIN;
+        }
+        if(other == 0){
+            return MAX;
+        }
+        count -= other;
+        if(gameDepth == 64){
+            return count * 300;
+        }
+
         boolean [][] stable = new boolean[8][8];
         if(s[0][0] + s[0][7] + s[7][0] + s[7][7] > 0){
             for(int i = 0; i < 2; i++){
@@ -91,7 +113,7 @@ public class RandomGuy {
                         stable[r][c] = true;
                         q.add(new tup(r+dx,c));
                         q.add(new tup(r,c+dy));
-                    }else if(s[r][c] != 0){
+                    }else if(s[r][c] == them){
                         corn -= CORNER;
                         stable[r][c] = true;
                         q.add(new tup(r+dx,c));
@@ -101,8 +123,11 @@ public class RandomGuy {
                         tup t = q.pollFirst();
                         r = t.r;
                         c = t.c;
+                        if (stable[r][c]) continue;
                         if(isStable(r, c, s)) {
                             stable[r][c] = true;
+                            if(s[r][c] == me) perm += 1;
+                            else perm -= 1;
                             int rp = r+dx;
                             int cp = c+dy;
                             if(bounded(rp, c) && s[r][c] == s[rp][c] && !stable[rp][c])
@@ -114,32 +139,6 @@ public class RandomGuy {
                 }
             }
         }
-
-        for (int i = 0; i < 8; i++){
-            for(int j = 0; j < 8; j++){
-                if (s[i][j] == me){
-                    count += 1;
-                    if(stable[i][j]){
-                        perm += 1;
-                    }
-                }
-                else if(s[i][j] != 0) {
-                    other += 1;
-                    if(stable[i][j]){
-                        perm -= 1;
-                    }
-                }
-
-            }
-        }
-        if (count == 0){
-            return MIN;
-        }
-        if(other == 0){
-            return MAX;
-        }
-
-        count -= other;
         count *= COUNT * gameDepth / 64;
         count += corn;
         count += perm * STABILITY;
